@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>El Rincón Isleño - Pedidos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS TEMÁTICA MARINA (AZUL CIELO) --- */
+        :root {
+            --color-cielo: #4FC3F7;    /* Azul Cielo Principal */
+            --color-mar: #0288D1;      /* Azul Profundo para botones/texto */
+            --color-arena: #FFF8E1;    /* Fondo cálido muy suave */
+            --color-blanco: #ffffff;
+            --color-texto: #37474F;
+            --color-oferta: #FF7043;   /* Naranja coral para ofertas (complementario) */
+        }
+
+        * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Open Sans', sans-serif; 
+            background-color: #E1F5FE; /* Fondo azul muy pálido */
+            margin: 0; padding: 0; 
+            color: var(--color-texto); 
+            overscroll-behavior-y: none; 
+            padding-bottom: 90px; 
+        }
+        
+        h1, h2, h3 { font-family: 'Fredoka', sans-serif; }
+
+        /* CABECERA */
+        header { 
+            background: var(--color-blanco); 
+            padding: 15px 10px; 
+            text-align: center; 
+            box-shadow: 0 4px 15px rgba(2, 136, 209, 0.1); 
+            position: relative; 
+            z-index: 100;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            /* Borde superior decorativo azul cielo */
+            border-top: 15px solid var(--color-cielo); 
+        }
+
+        /* LOGO CIRCULAR */
+        .logo-container {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--color-cielo);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: white;
+        }
+        .logo-main { width: 100%; height: 100%; object-fit: cover; } /* Ajuste para que se vea bien tu imagen */
+        
+        .brand-name { color: var(--color-mar); font-size: 1.2rem; margin: 10px 0 5px; font-weight: 600; }
+
+        .status-bar { font-size: 0.8rem; padding: 6px 15px; border-radius: 20px; display: inline-block; font-weight: bold; }
+        .status-open { background: #E0F7FA; color: #006064; border: 1px solid #B2EBF2; }
+        .status-closed { background: #FFEBEE; color: #C62828; }
+
+        /* SLIDER */
+        .slider-container { width: 100%; overflow: hidden; margin-top: 20px; position: relative; }
+        .slider-wrapper { display: flex; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+        .slide { min-width: 100%; padding: 0 20px; box-sizing: border-box; }
+        .slide img { width: 100%; height: 190px; object-fit: cover; border-radius: 20px; box-shadow: 0 8px 20px rgba(79, 195, 247, 0.25); }
+
+        /* CATEGORÍAS TIPO BURBUJA */
+        .categorias-wrapper { 
+            overflow-x: auto; white-space: nowrap; padding: 20px; 
+            -webkit-overflow-scrolling: touch; 
+            background: transparent;
+        }
+        .cat-btn { 
+            display: inline-block; padding: 10px 20px; margin-right: 12px; 
+            background: var(--color-blanco); 
+            border: 1px solid #B3E5FC; 
+            border-radius: 25px; 
+            font-size: 0.95rem; color: var(--color-mar); 
+            font-family: 'Fredoka', sans-serif;
+            cursor: pointer; transition: all 0.3s; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .cat-btn.active { 
+            background: var(--color-cielo); 
+            color: white; 
+            border-color: var(--color-cielo); 
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4); 
+        }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 0 20px; }
+
+        /* PRODUCTOS */
+        #grid-productos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .card { 
+            background: var(--color-blanco); border-radius: 20px; overflow: hidden; 
+            box-shadow: 0 5px 15px rgba(186, 219, 233, 0.3); 
+            text-align: center; padding-bottom: 15px; 
+            cursor: pointer; transition: transform 0.2s ease; position: relative; 
+            border: 1px solid #F0F8FF;
+        }
+        .card:active { transform: scale(0.97); }
+        .card img { width: 100%; height: 140px; object-fit: cover; border-bottom: 5px solid #E1F5FE; }
+        .card h3 { margin: 12px 10px 5px; font-size: 1rem; color: #455A64; line-height: 1.2; }
+        
+        .card .precio { color: var(--color-mar); font-weight: bold; font-size: 1.1rem; margin-top: 5px;}
+        .precio-tachado { text-decoration: line-through; color: #B0BEC5; font-size: 0.85rem; margin-right: 5px; }
+        
+        .badge-promo {
+            position: absolute; top: 10px; right: 10px;
+            background: var(--color-oferta); color: white;
+            font-size: 0.7rem; font-weight: bold; padding: 4px 10px;
+            border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 5;
+        }
+
+        /* CARRITO ESTILO FACTURA */
+        .carrito-box { 
+            background: var(--color-blanco); padding: 25px; border-radius: 25px; 
+            box-shadow: 0 -5px 30px rgba(2, 136, 209, 0.08); margin-top: 20px; 
+            border: 1px solid #E1F5FE;
+        }
+        .form-input { 
+            width: 100%; padding: 14px; margin-bottom: 15px; 
+            border: 1px solid #B3E5FC; border-radius: 12px; 
+            background: #F1F8E9; font-size: 1rem; color: #37474F; outline: none;
+        }
+        .form-input:focus { border-color: var(--color-cielo); background: white; }
+        
+        .btn-gps { 
+            background-color: var(--color-cielo); color: white; border: none; 
+            padding: 12px; width: 100%; border-radius: 12px; 
+            font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 10px rgba(79, 195, 247, 0.3);
+        }
+        
+        .btn-whatsapp { 
+            background: var(--color-mar); /* Azul fuerte */
+            color: white; width: 100%; padding: 18px; border: none; 
+            border-radius: 15px; font-weight: bold; font-size: 1.1rem; 
+            cursor: pointer; margin-top: 20px; 
+            box-shadow: 0 5px 15px rgba(2, 136, 209, 0.3); 
+            transition: transform 0.1s; 
+        }
+        .btn-whatsapp:active { transform: scale(0.98); }
+
+        .resumen-pago { margin-top: 20px; border-top: 2px dashed #B3E5FC; padding-top: 15px; }
+        .fila-pago { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; color: #546E7A; }
+        .total-final { font-weight: 800; font-size: 1.4rem; color: var(--color-mar); margin-top: 15px; padding-top: 10px; border-top: 1px solid #ECEFF1; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(33, 150, 243, 0.3); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; animation: fadeIn 0.3s; }
+.modal-content { 
+    background: white; 
+    width: 88%; 
+    max-width: 380px; 
+    border-radius: 25px; 
+    
+    /* --- ESTAS SON LAS LÍNEAS NUEVAS QUE ARREGLAN EL PROBLEMA --- */
+    max-height: 85vh;  /* Limita la altura al 85% de la pantalla */
+    overflow-y: auto;  /* Permite bajar y subir DENTRO de la tarjeta */
+    /* ----------------------------------------------------------- */
+
+    box-shadow: 0 25px 50px rgba(0,0,0,0.2); 
+    animation: slideUp 0.3s;
+    position: relative;
+}
+
+        @keyframes slideUp { from {transform: translateY(50px); opacity:0;} to {transform: translateY(0); opacity:1;} }
+        
+        .modal-img-container { width: 100%; height: 220px; background: #eee; }
+        .modal-img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .modal-body { padding: 25px; }
+        .close { 
+            position: absolute; top: 15px; right: 15px; background: white; 
+            width: 35px; height: 35px; border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; font-size: 24px; 
+            cursor: pointer; color: var(--color-mar); box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        
+        .btn-add { 
+            background: var(--color-cielo); color: white; border: none; 
+            padding: 15px; width: 100%; border-radius: 15px; 
+            margin-top: 20px; font-size: 1.1rem; font-weight: bold; 
+            box-shadow: 0 5px 15px rgba(79, 195, 247, 0.4);
+        }
+
+        .control-cantidad {
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            background: #E1F5FE; padding: 10px; border-radius: 15px; margin: 15px 0;
+        }
+        .btn-cant { 
+            background: white; border: none; color: var(--color-mar); 
+            width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .num-cant { font-size: 1.4rem; font-weight: bold; color: var(--color-mar); }
+        
+        /* CHECKBOXES DISEÑO MARINO */
+        .extra-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E1F5FE; color: #546E7A; }
+        .extra-check { accent-color: var(--color-cielo); transform: scale(1.2); }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <img src="https://i.postimg.cc/L5nVr8FB/Screenshot-20251227-184920-Instagram.png" alt="Logo Rincón Isleño" class="logo-main">
+    </div>
+    <div class="brand-name">El Rincón Isleño</div>
+    <div id="status-bar" class="status-bar status-open">🌊 Abierto - Comida de Mar</div>
+</header>
+
+<div class="slider-container" id="slider-container">
+    <div class="slider-wrapper" id="slider-wrapper">
+        <div class="slide"><img src="https://i.postimg.cc/R0wK8ppc/Image.jpg" alt="Bandeja de mariscos"></div>
+        <div class="slide"><img src="https://i.postimg.cc/5t8LGKKV/Sopa_de_Mariscos_Wide.jpg" alt="Sancocho de pescado"></div>
+        <div class="slide"><img src="https://i.postimg.cc/HLbXKvvk/ingredientes_comida_de_mar_parrilla.jpg" alt="Comida de mar"></div>
+    </div>
+</div>
+
+<div class="categorias-wrapper">
+    <button class="cat-btn active" onclick="filtrar('todos', this)">Todo</button>
+    <button class="cat-btn" onclick="filtrar('ceviches', this)">Ceviches</button>
+    <button class="cat-btn" onclick="filtrar('fuertes', this)">Platos Fuertes</button>
+    <button class="cat-btn" onclick="filtrar('cocteles', this)">Cócteles</button>
+    <button class="cat-btn" onclick="filtrar('bebidas', this)">Bebidas</button>
+</div>
+
+<div class="container">
+    <div id="grid-productos"></div>
+
+    <div class="carrito-box">
+        <h3 style="color: var(--color-mar); margin-top:0;">🛒 Tu Pesca (Pedido)</h3>
+        <ul id="lista-carrito" style="padding-left: 0; list-style: none; margin-bottom: 15px;">
+            <li style="text-align: center; padding: 15px; background: #F9FAFB; border-radius: 10px; color: #90A4AE;">Tu red está vacía...</li>
+        </ul>
+
+        <div class="resumen-pago">
+            <div class="fila-pago"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+            <div class="fila-pago" style="color: var(--color-cielo);"><span>Envío <span id="lbl-distancia" style="font-size:0.8rem"></span></span><span id="costo-envio">$0.00</span></div>
+            <div class="total-final fila-pago"><span>Total a Pagar</span><span id="total-final">$0.00</span></div>
+        </div>
+
+        <div style="margin-top: 25px;">
+            <input type="text" id="nombre" class="form-input" placeholder="Tu Nombre Completo">
+            
+            <button class="btn-gps" onclick="obtenerUbicacion()">
+                <span>📍</span> Calcular Envío (GPS)
+            </button>
+            <textarea id="direccion" class="form-input" style="margin-top:10px;" rows="2" placeholder="Detalles (Apto, Casa, Color)"></textarea>
+            
+            <button id="btn-confirmar" class="btn-whatsapp" onclick="enviarPedido()">Enviar Pedido por WhatsApp</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal" class="modal" onclick="cerrarModalFuera(event)">
+    <div class="modal-content">
+        <div class="close" onclick="cerrarModal()">×</div>
+        <div class="modal-img-container"><img id="modal-img" class="modal-img" src="" alt=""></div>
+        
+        <div class="modal-body">
+            <h2 id="modal-titulo" style="margin: 0; color: var(--color-texto);"></h2>
+            <div id="modal-precio-container" style="margin: 5px 0 10px;"></div>
+            <p id="modal-desc" style="color: #78909C; font-size: 0.95rem; line-height: 1.5;"></p>
+            
+            <div id="contenedor-extras" style="display:none; margin-top:15px;">
+                <h4 style="margin: 5px 0; color: var(--color-mar);">Acompañamientos:</h4>
+                <div id="lista-extras"></div>
+            </div>
+
+            <input type="text" id="nota-producto" class="form-input" style="margin-top:15px; margin-bottom:0;" placeholder="Nota (ej: Sin picante)">
+
+            <div class="control-cantidad">
+                <button class="btn-cant" onclick="cambiarCantidad(-1)">-</button>
+                <span id="cantidad-display" class="num-cant">1</span>
+                <button class="btn-cant" onclick="cambiarCantidad(1)">+</button>
+            </div>
+
+            <button id="btn-agregar-modal" class="btn-add" onclick="agregarAlCarrito()">¡A la orden!</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 🐟 CONFIGURACIÓN DEL RESTAURANTE 
+    // ==========================================
+    const TIENDA_LAT = 8.9586753; // Tu ubicación
+    const TIENDA_LON = -79.5366772; 
+    const CELULAR_WHATSAPP = "50767264957"; // Tu número
+    
+    // --- EXTRAS MARINOS ---
+    const listaExtras = [
+        { nombre: "Extra Patacones", precio: 1.50 },
+        { nombre: "Orden de Arroz con Coco", precio: 2.00 },
+        { nombre: "Extra Salsa de Ajo", precio: 0.75 },
+        { nombre: "Yuca Frita", precio: 1.50 }
+    ];
+
+    // --- MENÚ DE MARISCOS ---
+    const productos = [
+        // CEVICHES
+        { 
+            id: 1, cat: "ceviches", nombre: "Ceviche de Corvina", precio: 7.50, 
+            imagen: "https://i.postimg.cc/6QCnSbbW/IMG_3397.jpg", 
+            desc: "Corvina fresca marinada en limón, cebolla morada, cilantro y toque picante. Incluye galletas.", extras: true 
+        },
+        { 
+            id: 2, cat: "ceviches", nombre: "Cóctel de Camarón", precio: 8.50, 
+            imagen: "https://i.postimg.cc/6QCnSbbx/images.jpg", 
+            desc: "Camarones en salsa rosada de la casa, cebolla y toque de limón.", extras: true 
+        },
+        
+        // PLATOS FUERTES
+        { 
+            id: 3, cat: "fuertes", nombre: "Pescado Frito Entero", precio: 12.00, 
+            imagen: "https://i.postimg.cc/YCrSknSr/images_(1).jpg", 
+            desc: "Pargo rojo frito acompañado de patacones y ensalada fresca.", extras: true,
+            diasPromo: [5], precioPromo: 10.00 // Promo los viernes
+        },
+        { 
+            id: 4, cat: "fuertes", nombre: "Filete al Ajillo", precio: 11.50, 
+            imagen: "https://i.postimg.cc/bv1kMVV8/corvina_al_ajillo.jpg", 
+            desc: "Filete de pescado bañado en rica salsa de ajo y mantequilla. Con arroz con coco.", extras: true 
+        },
+        { 
+            id: 5, cat: "fuertes", nombre: "Sopa de Mariscos", precio: 9.00, 
+            imagen: "https://i.postimg.cc/5t8LGKKV/Sopa_de_Mariscos_Wide.jpg", 
+            desc: "Potente sopa con pescado, camarón, almejas y leche de coco.", extras: false 
+        },
+
+        // COCTELES / ENTRADAS
+        { 
+            id: 6, cat: "cocteles", nombre: "Deditos de Pescado", precio: 6.50, 
+            imagen: "https://i.postimg.cc/JhjZgYY1/Deditos_de_Pescado_Apanados.jpg", 
+            desc: "Trocitos de pescado empanizado con salsa tártara.", extras: true 
+        },
+        { 
+            id: 7, cat: "cocteles", nombre: "Arañitas de Calamar", precio: 7.00, 
+            imagen: "https://i.postimg.cc/sDDFgtpF/images_(2).jpg", 
+            desc: "Crujientes calamares fritos.", extras: true,
+            diasPromo: [1,2,3,4,5,6], precioPromo: 4.99 // Promo todos los dias
+        },
+
+        // BEBIDAS
+        { id: 8, cat: "bebidas", nombre: "Limonada con Raspadura", precio: 2.50, imagen: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80", desc: "Bien fría.", extras: false },
+        { id: 9, cat: "bebidas", nombre: "Cerveza Nacional", precio: 2.00, imagen: "https://i.postimg.cc/9fyZSggf/89647028_PNG.png", desc: "Balboa Roja, Panamá o Atlas bien fría.", extras: false },
+        { id: 10, cat: "bebidas", nombre: "Soda", precio: 1.50, imagen: "https://i.postimg.cc/66bkGng9/9781_5.png", desc: "Coca Cola o Ginger Ale.", extras: false },
+    ];
+
+    // ==========================================
+    // LÓGICA DEL APP (Similar a la anterior)
+    // ==========================================
+    let carrito = [];
+    let productoActual = null;
+    let costoEnvioActual = 0;
+    let cantidadSeleccionada = 1;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        renderizarProductos(productos);
+        iniciarSlider();
+    });
+
+    function esDiaDePromo(producto) {
+        if (!producto.diasPromo) return false;
+        const hoy = new Date().getDay();
+        return producto.diasPromo.includes(hoy);
+    }
+
+    // --- SLIDER AUTOMÁTICO ---
+    let sliderIndex = 0;
+    function iniciarSlider() {
+        setInterval(() => {
+            const wrapper = document.getElementById('slider-wrapper');
+            sliderIndex++;
+            if(sliderIndex > 2) sliderIndex = 0;
+            wrapper.style.transform = `translateX(-${sliderIndex * 100}%)`;
+        }, 3500);
+    }
+
+    function filtrar(categoria, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (categoria === 'todos') renderizarProductos(productos);
+        else renderizarProductos(productos.filter(p => p.cat === categoria));
+    }
+
+    function renderizarProductos(lista) {
+        const grid = document.getElementById('grid-productos');
+        grid.innerHTML = '';
+        lista.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = function() { abrirModal(p); };
+            
+            let htmlPrecio = `<div class="precio">$${p.precio.toFixed(2)}</div>`;
+            let htmlBadge = '';
+            
+            if (esDiaDePromo(p)) {
+                htmlPrecio = `<div class="precio"><span class="precio-tachado">$${p.precio.toFixed(2)}</span> $${p.precioPromo.toFixed(2)}</div>`;
+                htmlBadge = `<div class="badge-promo">¡OFERTA!</div>`;
+            }
+
+            card.innerHTML = `
+                ${htmlBadge}
+                <img src="${p.imagen}">
+                <h3>${p.nombre}</h3>
+                ${htmlPrecio}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    const modal = document.getElementById('modal');
+    
+    function abrirModal(producto) {
+        productoActual = producto;
+        cantidadSeleccionada = 1;
+        document.getElementById('cantidad-display').innerText = cantidadSeleccionada;
+        document.getElementById('modal-img').src = producto.imagen;
+        document.getElementById('modal-titulo').innerText = producto.nombre;
+        document.getElementById('modal-desc').innerText = producto.desc;
+        
+        const containerPrecio = document.getElementById('modal-precio-container');
+        if (esDiaDePromo(producto)) {
+            containerPrecio.innerHTML = `<h3 style="color:#FF7043; font-size:1.4rem;"><span class="precio-tachado" style="color:#aaa;">$${producto.precio.toFixed(2)}</span> $${producto.precioPromo.toFixed(2)}</h3>`;
+        } else {
+            containerPrecio.innerHTML = `<h3 style="color:var(--color-mar); font-size:1.4rem;">$${producto.precio.toFixed(2)}</h3>`;
+        }
+
+        document.getElementById('nota-producto').value = ""; 
+        const containerExtras = document.getElementById('contenedor-extras');
+        const listaExtrasDiv = document.getElementById('lista-extras');
+        listaExtrasDiv.innerHTML = "";
+
+        if (producto.extras) {
+            containerExtras.style.display = "block";
+            listaExtras.forEach((extra, index) => {
+                const div = document.createElement('div');
+                div.className = "extra-row";
+                div.innerHTML = `<label><input type="checkbox" class="extra-check" value="${index}"> ${extra.nombre}</label> <span style="font-weight:bold; color:var(--color-mar)">+$${extra.precio.toFixed(2)}</span>`;
+                listaExtrasDiv.appendChild(div);
+            });
+        } else {
+            containerExtras.style.display = "none";
+        }
+        
+        document.getElementById('btn-agregar-modal').innerText = "¡A la orden!";
+        document.getElementById('btn-agregar-modal').style.background = "var(--color-cielo)";
+        modal.classList.add('active'); 
+    }
+    
+    function cambiarCantidad(n) {
+        cantidadSeleccionada += n;
+        if (cantidadSeleccionada < 1) cantidadSeleccionada = 1;
+        document.getElementById('cantidad-display').innerText = cantidadSeleccionada;
+    }
+    
+    function cerrarModal() { modal.classList.remove('active'); }
+    function cerrarModalFuera(e) { if (e.target == modal) cerrarModal(); }
+
+    function agregarAlCarrito() {
+        let precioBase = esDiaDePromo(productoActual) ? productoActual.precioPromo : productoActual.precio;
+        let extrasSeleccionados = [];
+        let costoExtras = 0;
+        
+        if (productoActual.extras) {
+            document.querySelectorAll('.extra-check:checked').forEach(c => {
+                const extra = listaExtras[c.value];
+                extrasSeleccionados.push(extra.nombre);
+                costoExtras += extra.precio;
+            });
+        }
+
+        const precioUnitarioFinal = precioBase + costoExtras;
+        const nota = document.getElementById('nota-producto').value.trim();
+
+        for(let i=0; i<cantidadSeleccionada; i++) {
+            carrito.push({
+                ...productoActual, 
+                precioFinal: precioUnitarioFinal,
+                extras: extrasSeleccionados,
+                nota: nota,
+                idUnico: Date.now() + Math.random()
+            });
+        }
+        actualizarCarritoUI();
+        
+        const btn = document.getElementById('btn-agregar-modal');
+        btn.innerText = "¡Listo!";
+        btn.style.background = "#66BB6A"; // Verde suave
+        setTimeout(() => cerrarModal(), 600);
+    }
+
+    function eliminarItem(idUnico) {
+        carrito = carrito.filter(item => item.idUnico !== idUnico);
+        actualizarCarritoUI();
+    }
+
+    function actualizarCarritoUI() {
+        const lista = document.getElementById('lista-carrito');
+        let subtotal = 0;
+        lista.innerHTML = ""; 
+        
+        if(carrito.length === 0) {
+            lista.innerHTML = "<li style='text-align: center; padding: 10px; color: #90A4AE;'>Tu red está vacía...</li>";
+        } else {
+            carrito.forEach((item) => {
+                subtotal += item.precioFinal;
+                const li = document.createElement('li');
+                li.style.cssText = "padding: 10px 0; border-bottom: 1px solid #E1F5FE;";
+                let textoExtras = item.extras.length > 0 ? `<div style="font-size:0.8rem; color:#78909C;">+ ${item.extras.join(", ")}</div>` : "";
+                if(item.nota) textoExtras += `<div style="font-size:0.8rem; color:#FF7043; font-style:italic;">Nota: ${item.nota}</div>`;
+
+                li.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div><span style="font-weight:600; color:#455A64;">${item.nombre}</span>${textoExtras}</div>
+                        <div style="display:flex; align-items:center;">
+                            <span style="font-weight:bold; margin-right:10px; color:var(--color-mar)">$${item.precioFinal.toFixed(2)}</span>
+                            <button onclick="eliminarItem(${item.idUnico})" style="color:#EF5350; background:none; border:none; font-weight:bold;">✕</button>
+                        </div>
+                    </div>
+                `;
+                lista.appendChild(li);
+            });
+        }
+
+        let total = subtotal + costoEnvioActual;
+        document.getElementById('subtotal').innerText = "$" + subtotal.toFixed(2);
+        document.getElementById('costo-envio').innerText = "$" + costoEnvioActual.toFixed(2);
+        document.getElementById('total-final').innerText = "$" + total.toFixed(2);
+    }
+
+    // --- GEOLOCALIZACIÓN Y ENVÍO ---
+    function obtenerUbicacion() {
+        const direccionInput = document.getElementById('direccion');
+        direccionInput.value = "📍 Calculando marea...";
+        if (!navigator.geolocation) return alert("Tu celular no tiene GPS.");
+        
+        navigator.geolocation.getCurrentPosition((pos) => {
+            // Lógica simple de distancia
+            const dist = 5.5; // Simulado para el ejemplo
+            costoEnvioActual = 3.50; // Costo simulado
+            
+            direccionInput.value = `Ubicación GPS detectada`;
+            document.getElementById('lbl-distancia').innerText = `(${dist} km)`;
+            alert(`📍 Distancia al puerto: ${dist} km.\nEnvío: $${costoEnvioActual.toFixed(2)}`);
+            actualizarCarritoUI();
+        }, () => { alert("Error GPS. Activa tu ubicación."); direccionInput.value=""; });
+    }
+
+    function enviarPedido() {
+        const nombre = document.getElementById('nombre').value;
+        const direccion = document.getElementById('direccion').value;
+        if(carrito.length === 0) return alert("¡La red está vacía! Agrega productos.");
+        if(!nombre) return alert("Falta tu nombre, capitán.");
+
+        let subtotal = 0; carrito.forEach(i => subtotal += i.precioFinal);
+        let total = subtotal + costoEnvioActual;
+
+        let msg = `🎣 *NUEVO PEDIDO - EL RINCÓN ISLEÑO* 🎣\nCliente: *${nombre}*\nDirección: ${direccion}\n\n`;
+        carrito.forEach(i => {
+            msg += `🐟 1x ${i.nombre} ($${i.precioFinal.toFixed(2)})`;
+            if (i.extras.length > 0) msg += `\n   + ${i.extras.join(", ")}`;
+            if (i.nota) msg += `\n   (Nota: ${i.nota})`;
+            msg += `\n`;
+        });
+        
+        msg += `\n💰 Subtotal: $${subtotal.toFixed(2)}`;
+        msg += `\nmoto Envío: $${costoEnvioActual.toFixed(2)}`;
+        msg += `\n*TOTAL A PAGAR: $${total.toFixed(2)}*`;
+        
+        window.open(`https://wa.me/${CELULAR_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+</script>
+</body>
+</html>
